@@ -1,7 +1,11 @@
 #include <Arduino.h>
 
+#define DCSBIOS_DEFAULT_SERIAL
+#include <DcsBios.h>
+
 #define BACKLIGHT_LED_PIN  5
 #define MASTER_CAUTION_LED_PIN 6
+
 #define PLACEHOLDER_KEY_LABEL "_PLACEHOLDER_"
 
 const byte ROWS = 3;
@@ -16,8 +20,12 @@ String hexaKeys[ROWS][COLS] = {
 byte rowPins[ROWS] = {2, 3, 4};
 byte colPins[COLS] = {7, 8, 9, 10, 16, 14, 15, 18, 19, 20, 21, 1, 0};
 
+/* Make the LED connected into a Master Caution Light */
+DcsBios::LED masterCaution(0x1012, 0x0800, MASTER_CAUTION_LED_PIN);
+
 void setup() {
   Serial.begin(9600);
+  DcsBios::setup();
   while (!Serial); // Wait for Serial to be ready
   Serial.println("A10C UFC v1.1 --- READY");
 
@@ -38,6 +46,7 @@ void setup() {
 }
 
 void loop() {
+  DcsBios::loop();
   for (int row = 0; row < ROWS; row++) {
       // Set the current column to LOW to activate it
       digitalWrite(rowPins[row], LOW);
