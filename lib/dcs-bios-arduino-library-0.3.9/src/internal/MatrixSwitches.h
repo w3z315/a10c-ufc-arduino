@@ -109,5 +109,62 @@ namespace DcsBios {
 			}
 	};
 	typedef Matrix3PosT<> Matrix3Pos;
+	
+	template <unsigned long pollIntervalMs = POLL_EVERY_TIME>
+	class Matrix3PosStateT : PollingInput, public ResettableInput {
+		private:
+			const char* msg_;
+			volatile unsigned char* addressA_;
+			volatile unsigned char* addressB_;
+			char lastState_;
+			char onLvl;
+			char readState() {
+				char stateA = *addressA_;
+				char stateB = *addressB_;
+
+				if (stateA == onLvl) return 2;
+				if (stateB == onLvl) return 0;
+				return 1;
+			}
+			void resetState()
+			{
+				lastState_ = (lastState_==0)?-1:0;
+			}
+			void pollInput() {
+				char state = readState();
+				if (state != lastState_) {
+					if (state == 0) {
+						if (tryToSendDcsBiosMessage(msg_, "0")) {
+							lastState_ = state;
+						}
+					}
+					else if (state == 1) {
+						if (tryToSendDcsBiosMessage(msg_, "1")) {
+							lastState_ = state;
+						}
+					}
+					else if (state == 2) {
+						if(tryToSendDcsBiosMessage(msg_, "2")){
+							lastState_ = state;
+						}
+					}
+				}
+			}
+		public:
+			Matrix3PosStateT(const char* msg, volatile unsigned char* addressA, volatile unsigned char* addressB, char onLvlArg) : PollingInput(pollIntervalMs)
+			{
+				msg_ = msg;
+				addressA_ = addressA;
+				addressB_ = addressB;
+				onLvl = onLvlArg;
+				lastState_ = readState();
+			}
+
+			void resetThisState()
+			{
+				this->resetState();
+			}
+	};
+	typedef Matrix3PosStateT<> Matrix3PosState;
 }
 #endif	

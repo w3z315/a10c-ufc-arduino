@@ -28,12 +28,13 @@ DcsBios::MatActionButtonSet ufcFunc("UFC_FUNC", &in_mat[0][5], LOW);
 DcsBios::MatActionButtonSet ufcEnt("UFC_ENT", &in_mat[0][6], LOW);
 DcsBios::MatActionButtonSet ufcMasterCaution("UFC_MASTER_CAUTION", &in_mat[0][8], LOW);
 
-DcsBios::Matrix3Pos ufcSteer("UFC_STEER", 1, 0, 2, 0);
 
-DcsBios::Matrix3Pos ufcData("UFC_DATA", 0, 10, 1, 10);
-DcsBios::Matrix3Pos ufcSel("UFC_SEL", 0, 11, 1, 11);
-DcsBios::Matrix3Pos ufcDepr("UFC_DEPR", 1, 12, 2, 12);
-DcsBios::Matrix3Pos ufcInten("UFC_INTEN", 2, 10, 2, 11);
+DcsBios::Matrix3PosState ufcSteer("UFC_STEER", &in_mat[1][0], &in_mat[2][0], LOW);
+
+DcsBios::Matrix3PosState ufcData("UFC_DATA", &in_mat[0][10], &in_mat[1][10], LOW);
+DcsBios::Matrix3PosState ufcSel("UFC_SEL", &in_mat[0][11], &in_mat[1][11], LOW);
+DcsBios::Matrix3PosState ufcDepr("UFC_DEPR", &in_mat[1][12], &in_mat[2][12], LOW);
+DcsBios::Matrix3PosState ufcInten("UFC_INTEN", &in_mat[2][11], &in_mat[2][10], LOW);
 
 
 DcsBios::MatActionButtonSet ufc4("UFC_4", &in_mat[1][1], LOW);
@@ -94,7 +95,6 @@ void loop() {
 
         for (int col = 0; col < numCols; col++) {
             if (digitalRead(colPins[col]) == LOW) { // If button press is detected
-                delay(5); // Debounce delay
                 if (digitalRead(colPins[col]) == LOW) { // Check again to confirm button press
                     in_mat[row][col] = LOW; // Mark as pressed
                 } else {
@@ -106,7 +106,6 @@ void loop() {
         }
         digitalWrite(rowPins[row], HIGH); // Deactivate row
 
-        delay(10); // Short delay to stabilize before moving to the next row
     }
 
     DcsBios::loop();
